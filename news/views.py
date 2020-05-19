@@ -1,10 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse,Http404
 import datetime as dt
 
 #our views functions
 def welcome(request):
-    return HttpResponse('Welcome to The Moringa Tribune')
+    return render(request,'welcome.html')
 
 def convert_dates(dates):
     #This function should get the weekday number for the date
@@ -16,17 +16,7 @@ def convert_dates(dates):
 
 def news_of_day(request):
     date = dt.date.today()
-    
-    #function to convert date object to find exact day
-    day = convert_dates(date)
-    html = f'''
-        <html>
-            <body>
-                <h1> News for {day} {date.day}-{date.month}-{date.year}</h1>
-            </body>
-        </html>
-            '''
-    return HttpResponse(html)
+    return render(request,'all-news/today-news.html', {"date":date})
 
 def past_days_news(request,past_date):
     #Convert data from the string url
@@ -35,13 +25,9 @@ def past_days_news(request,past_date):
 
     except ValueError:
         raise Http404()
+        assert False
 
-    day = convert_dates(date)
-    html = f'''
-        <html>
-            <body>
-                <h1>News for {day} {date.day}-{date.month}-{date.year}</h1>
-            </body>
-        </html>
-            '''
-    return HttpResponse(html)
+    if date == dt.date.today():
+        return redirect(news_of_day)
+
+    return render(request,'all-news/past-news.html', {"date":date})
